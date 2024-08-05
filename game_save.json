@@ -1,0 +1,1 @@
+{"scenario": {"scenario": "You are in a room with two doors. One is labeled 'Danger' and the other is labeled 'Safety'. Which door do you choose?", "choices": [{"choice": "Danger", "outcome": "You find a treasure chest full of gold. You win!"}, {"choice": "Safety", "outcome": "The room was a trap. Game over."}]}, "choice": 2, "score": 0}

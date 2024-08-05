@@ -1,4 +1,7 @@
-# Defining scenarios
+import json
+import random
+
+# Define the list of scenarios
 scenarios = [
     {
         "scenario": "You are lost in a forest and come across a fork in the path. Which way do you go?",
@@ -45,19 +48,20 @@ scenarios = [
     },
 ]
 
-import random
 
-
+# Function to get a random scenario
 def get_scenario():
     return random.choice(scenarios)
 
 
+# Function to present the choices for a scenario
 def present_choices(scenario):
     print(scenario["scenario"])
-    for i, choice in enumerate(scenario["choices"], start=1):
-        print(f"{i}. {choice['choice']}")
+    for i, choice in enumerate(scenario["choices"]):
+        print(f"{i+1}. {choice['choice']}")
 
 
+# Function to get the player's choice
 def get_player_choice(scenario):
     while True:
         try:
@@ -71,6 +75,7 @@ def get_player_choice(scenario):
             )
 
 
+# Function to get the outcome of a choice
 def get_outcome(scenario, choice):
     outcome = scenario["choices"][choice - 1]["outcome"]
     if "You win!" in outcome:
@@ -82,30 +87,46 @@ def get_outcome(scenario, choice):
     return outcome, score
 
 
-def main():
-    score = 0
-    while True:
-        scenario = get_scenario()
-        present_choices(scenario)
-        choice = get_player_choice(scenario)
-        outcome, outcome_score = get_outcome(scenario, choice)
-        score += outcome_score
-        print(outcome)
-        print(f"Your current score is: {score}")
-        play_again = input("Play again? (y/n) ")
-        if play_again.lower() != "y":
-            break
-
-        import json
-
-
+# Function to save the game state
 def save_game(scenario, choice, score):
     game_state = {"scenario": scenario, "choice": choice, "score": score}
     with open("game_save.json", "w") as f:
         json.dump(game_state, f)
 
 
+# Function to load the game state
+def load_game():
+    try:
+        with open("game_save.json", "r") as f:
+            game_state = json.load(f)
+        return game_state["scenario"], game_state["choice"], game_state["score"]
+    except FileNotFoundError:
+        return None, None, None
+
+
+# Main game loop
+def main():
+    scenario, choice, score = load_game()
+    if scenario is None:
+        scenario = get_scenario()
+        choice = None
+        score = 0
+    while True:
+        if choice is None:
+            present_choices(scenario)
+            choice = get_player_choice(scenario)
+        outcome, outcome_score = get_outcome(scenario, choice)
+        score += outcome_score
+        print(outcome)
+        print(f"Your current score is: {score}")
+        save_game(scenario, choice, score)
+        play_again = input("Play again? (y/n) ")
+        if play_again.lower() != "y":
+            break
+        scenario = get_scenario()
+        choice = None
+
+
+# Run the game
 if __name__ == "__main__":
     main()
-
-# The problem is that we have two functions named get_outcome. The second one overwrites the first one.
